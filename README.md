@@ -1,5 +1,5 @@
 ## 简介
-基于js的消息通讯sdk，包含易课堂消息sdk、通用消息服务sdk、常见消息通讯器插件sdk，使用lerna进行管理
+基于js的消息通讯sdk，包含通用消息服务sdk、常见消息通讯器插件sdk，使用lerna进行多包管理
  
 
 1.  规范了消息协议
@@ -7,16 +7,18 @@
 3.  提供了基本的iframe和webview通讯方式，支持通讯方式拓展
 
 
-## Eclass-web-service
-易课堂消息sdk
 
+## web-service
+通用消息sdk，不具有具体的通讯通道，需结合@sugarteam/web-messager或自定义messager插件
+### 结合 @sugarteam/web-messager
 ```
-import EclassWebService from "@student/eclass-web-service";
+import WebService from "@sugarteam/web-service";
+import { webviewMessager, iframeMessager } from "@sugarteam/web-messagerr";
 
-// 不指定类型将自动判断环境
-const iframeWebService = new EclassWebService('iframe');
+const webService = new WebService({ messager: webviewMessager });
+
 // 推送消息
-iframeWebService.send({
+webService.send({
     type: 'common.sayHello',
     data: {
         body: {
@@ -26,8 +28,9 @@ iframeWebService.send({
    
 })
 
+
 // 请求式
-const response = await iframeWebService.request({
+const response = await webService.request({
     type: 'common.sayHello',
     data: {
         body: {
@@ -36,8 +39,10 @@ const response = await iframeWebService.request({
     }
 });
 
+
 // 监听消息
-iframeWebService.on('common.requestName', (msg, ctx) => {
+webService.on('common.requestName', (msg, ctx) => {
+
     // ctx中携带请求的信息，end 方法自动携带消息发起方的reqId和type进行回复
     ctx.end({
         data: {
@@ -48,10 +53,11 @@ iframeWebService.on('common.requestName', (msg, ctx) => {
         }
     })
 });
+
+    
 ```
 
-## web-service
-通用消息sdk，不具有具体的通讯通道，需结合@student/web-messager或自定义messager插件（见eclass-web-serice的实现）
+
 下面描述如何自定义webservice
 
 
@@ -86,13 +92,13 @@ class Messager  {
 
 ## webservice引入messager
 ```
-import WebService from "@student/web-service";
+import WebService from "@sugarteam/web-service";
 import customMessager from "./messager";
 
-const iframeWebService = new WebService({ messager });
+const webService = new WebService({ messager });
 
 // 推送消息
-iframeWebService.send({
+webService.send({
     type: 'common.sayHello',
     data: {
         body: {
@@ -104,7 +110,7 @@ iframeWebService.send({
 
 
 // 请求式
-const response = await iframeWebService.request({
+const response = await webService.request({
     type: 'common.sayHello',
     data: {
         body: {
@@ -115,7 +121,7 @@ const response = await iframeWebService.request({
 
 
 // 监听消息
-iframeWebService.on('common.requestName', (msg, ctx) => {
+webService.on('common.requestName', (msg, ctx) => {
 
     // ctx中携带请求的信息，end 方法自动携带消息发起方的reqId和type进行回复
     ctx.end({
